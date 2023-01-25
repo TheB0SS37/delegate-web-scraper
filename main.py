@@ -99,8 +99,8 @@ def formatName(name):
 
     return last_name + ', ' + first_name
 
-def createCSV(members):
-    with open('testsenators.csv', 'w', newline='') as file:
+def createCSV(members,fileName):
+    with open(fileName, 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(members)
     file.close()
@@ -122,9 +122,15 @@ def printMembers(members):
 
 
 def main():
-    url_to_scrape = chooseMembers()
+    # url_to_scrape = chooseMembers() # add this if you want to use as a console
+    url_to_scrape = "https://mgaleg.maryland.gov/mgawebsite/Members/Index/house" #edit this url if it ever changes
     membersInfo = scrapeMembers(createMemberLinks(url_to_scrape))
-    createCSV(membersInfo)
+    createCSV(membersInfo, "delegates 2023.csv")
+    printMembers(membersInfo)
+
+    url_to_scrape ="https://mgaleg.maryland.gov/mgawebsite/Members/Index/senate" # same thing here
+    membersInfo = scrapeMembers(createMemberLinks(url_to_scrape))
+    createCSV(membersInfo, "senators 2023.csv")
     printMembers(membersInfo)
 
 
