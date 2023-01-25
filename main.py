@@ -1,3 +1,6 @@
+# Developed by Ian Wagner
+# This program collects information on current MGA Delegates and Senators
+
 from bs4 import BeautifulSoup
 import requests
 import re
@@ -19,7 +22,7 @@ def createMemberLinks(url):
     # create document
     html_document = getHTMLdocument(url)
 
-    # create soap object
+    # create soup object
     soup = BeautifulSoup(html_document, 'html.parser')
     links_to_members = []
     # find all the anchor tags with "href"
@@ -43,7 +46,7 @@ def scrapeMembers(links):
         table = soup.find('dl', attrs={'class': 'row'}).contents[15]
         room = table.find('dd').contents[0].strip()  # room
         phone = table.find('dl').contents[3].contents[0].strip()  # phone
-        members.append(name + " |  " + room + " | " + phone[6:18] + '\n')
+        members.append(name + " | " + room + " | " + phone[6:18] + '\n')
     return members
 
 
