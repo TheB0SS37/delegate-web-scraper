@@ -4,6 +4,7 @@
 from bs4 import BeautifulSoup
 import requests
 import re
+import csv
 
 
 # function to extract html document from given url
@@ -36,7 +37,8 @@ def createMemberLinks(url):
 # Scrapes every member page in the links list
 def scrapeMembers(links):
     print("Gathering members...\n")
-    members = []
+    members = [["Name", "Room", "Phone #"]]
+
     for i in range(0, len(links), 2):
         url_to_scrape = links[i]
 
@@ -46,9 +48,17 @@ def scrapeMembers(links):
         table = soup.find('dl', attrs={'class': 'row'}).contents[15]
         room = table.find('dd').contents[0].strip()  # room
         phone = table.find('dl').contents[3].contents[0].strip()  # phone
-        members.append(name + " | " + room + " | " + phone[6:18] + '\n')
+        # Check for duplicates, this could be faster
+        if [name, room, phone[6:18]] not in members:
+            members.append([name, room, phone[6:18]])
+        print(len(members))
     return members
 
+def createCSV(members):
+    with open('members.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(members)
+    file.close()
 
 def chooseMembers():
     base_link = "https://mgaleg.maryland.gov/mgawebsite/Members/Index/"
@@ -69,6 +79,7 @@ def printMembers(members):
 def main():
     url_to_scrape = chooseMembers()
     membersInfo = scrapeMembers(createMemberLinks(url_to_scrape))
+    createCSV(membersInfo)
     printMembers(membersInfo)
 
 
