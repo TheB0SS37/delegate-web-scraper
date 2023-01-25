@@ -44,7 +44,7 @@ def scrapeMembers(links):
 
         html_document = requests.get(url_to_scrape)
         soup = BeautifulSoup(html_document.content, 'html.parser')
-        name = soup.find('h2').contents[0]  # name
+        name = formatName(str(soup.find('h2').contents[0].string)) # name
         table = soup.find('dl', attrs={'class': 'row'}).contents[15]
         room = table.find('dd').contents[0].strip()  # room
         phone = table.find('dl').contents[3].contents[0].strip()  # phone
@@ -53,9 +53,54 @@ def scrapeMembers(links):
             members.append([name, room, phone[6:18]])
         print(len(members))
     return members
+def formatName(name):
+    new_name = name.split()
+    first_name = ''
+    last_name = ''
+    removables = ["Jr.", "Sr.", "II", "III", "IV"] # add extra name items to be removed
+    if "Senator" in new_name:
+        new_name.remove("Senator")
+    elif "Delegate" in new_name:
+        new_name.remove("Delegate")
+    for r in removables:
+        if r in new_name:
+            new_name.remove(r)
+
+
+    if 'Jr.' in new_name:
+        new_name.remove('Jr.')
+    if 'Sr.' in new_name:
+        new_name.remove('Sr.')
+
+    # remove commas
+    i = 0
+    for i in range(len(new_name)):
+        if ',' in new_name[i]:
+            print(f'removing comma from {new_name[i]}')
+            new_name[i] = new_name[i][:-1]
+
+    # Handle first names
+    i = 0
+    if len(new_name) > 0 and '.' in new_name[0]: # If first name is just initials, handle that
+        print(f'period as first name {new_name[0]}')
+        while i < len(new_name) and '.' in new_name[i]:
+            print(f'Im running on {new_name[i]}')
+            first_name += new_name[i]
+            i += 1
+    elif len(new_name) > 0: # Complete first name, grab first name
+        first_name = new_name[0]
+
+    # Handle last name, remove any initials.
+    while len(new_name) > 0:
+        if '.' in new_name[0]:
+            new_name.pop(0)
+        else:
+            last_name = new_name.pop(0)
+
+    return last_name + ', ' + first_name
 
 def createCSV(members):
-    with open('members.csv', 'w', newline='') as file:
+    with open('testsenators.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(members)
     file.close()
